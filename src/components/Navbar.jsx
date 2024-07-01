@@ -1,6 +1,6 @@
-import { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import PropTypes from "prop-types";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { auth } from "../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 import { ModalsContext } from "../contexts/ModalsProvider";
@@ -49,19 +49,24 @@ const Navbar = ({ admin }) => {
     <nav className="navbar navbar-dark bg-primary">
       <div className="container-fluid">
         <div className="navbar-brand mb-0 h1 me-auto">
-          <img
-            src={import.meta.env.BASE_URL + "logo.png"}
-            alt="Logo"
-            width="30"
-            height="24"
-            className="d-inline-block align-text-top"
-          />
-          The Markatplace
+          <Link to={import.meta.env.BASE_URL} className="text-decoration-none text-light">
+            <img
+              src={import.meta.env.BASE_URL + "logo.png"}
+              alt="Logo"
+              width="30"
+              height="24"
+              className="d-inline-block align-text-top"
+            />
+            The Marketplace
+          </Link>
         </div>
         <div className="row row-cols-auto">
           <div className="navbar-brand">{user}</div>
           {admin && (
-            <button onClick={handleAdmin} className="btn btn-secondary me-2">{adminButtonText}</button>
+            <>
+              <Link to={import.meta.env.BASE_URL + "admin"} className="btn btn-secondary me-2">{adminButtonText}</Link>
+              <Link to={import.meta.env.BASE_URL + "post"} className="btn btn-secondary me-2">Post Item</Link>
+            </>
           )}
           <button onClick={handleAuth} className="btn btn-secondary me-2">{authButtonText}</button>
         </div>

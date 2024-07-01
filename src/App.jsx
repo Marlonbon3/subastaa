@@ -14,8 +14,8 @@ import Navbar from "./components/Navbar";
 import { SignUpModal } from "./components/Modal";
 import HomePage from "./pages/Home";
 import AdminPage from "./pages/Admin";
-import Footer from "./components/Footer";
-
+import Post from "./pages/Post"; // Importa el componente Post
+import Footer from "./components/Footer"; // Importa el componente Footer
 function App() {
   const demo = true;
 
@@ -39,13 +39,22 @@ function App() {
         <Navbar admin={admin} />
         <SignUpModal />
         <Routes>
-          <Route path={import.meta.env.BASE_URL} Component={HomePage} />
+          <Route path={import.meta.env.BASE_URL} element={<HomePage />} />
           <Route
             exact
             path={import.meta.env.BASE_URL + "admin"}
             element={
               <ProtectedRoute condition={admin}>
                 <AdminPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            exact
+            path={import.meta.env.BASE_URL + "post"} // Ruta para Post.jsx
+            element={
+              <ProtectedRoute condition={admin}>
+                <Post />
               </ProtectedRoute>
             }
           />
