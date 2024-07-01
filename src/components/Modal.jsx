@@ -150,7 +150,7 @@ const ItemModal = () => {
     <Modal type={ModalTypes.ITEM} title={activeItem.title}>
       <div className="modal-body">
         <p>{activeItem.detail}</p>
-        <img src={secondaryImageSrc} className="img-fluid" alt={activeItem.title} />
+        <img src={activeItem.primaryImage} className="img-fluid" alt={activeItem.title} />
       </div>
       <div className="modal-footer justify-content-start">
         <div className="input-group mb-2">
