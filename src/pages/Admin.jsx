@@ -8,13 +8,13 @@ function AdminPage() {
         <button
           className="btn btn-danger me-3"
           onClick={() => editItems(undefined, true, false)}
-          >
+        >
           Update all items
         </button>
         <button
           className="btn btn-danger me-3"
           onClick={() => editItems(undefined, false, true)}
-          >
+        >
           Delete all bids
         </button>
       </div>

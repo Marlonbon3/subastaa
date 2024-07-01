@@ -46,7 +46,7 @@ export const Row = ({ item }) => {
       <td>{item.id}</td>
       <td>{item.title}</td>
       <td>{amount}</td>
-      <td>{bids}</td>
+      <td>{item.bids ? Object.keys(item.bids).length : 0}</td>
       <td>{winner}</td>
       <td>{timeLeft}</td>
       <td>
@@ -74,5 +74,6 @@ Row.propTypes = {
     endTime: PropTypes.object.isRequired,
     id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
-  })
-}
+    bids: PropTypes.object, // Asegúrate de que bids esté definido y sea un objeto
+  }).isRequired,
+};
