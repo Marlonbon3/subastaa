@@ -36,10 +36,8 @@ export const Item = ({ item }) => {
   }, [item.endTime]);
 
   useEffect(() => {
-    import(`../assets/${item.primaryImage}.png`).then((src) => {
-      setPrimaryImageSrc(src.default)
-    })
-  }, [item.primaryImage])
+    setPrimaryImageSrc(item.primaryImage);
+  }, [item.primaryImage]);
 
   return (
     <div className="col">
@@ -66,9 +64,9 @@ Item.propTypes = {
   item: PropTypes.shape({
     startingPrice: PropTypes.number.isRequired,
     currency: PropTypes.string.isRequired,
-    endTime: PropTypes.object.isRequired,
+    endTime: PropTypes.instanceOf(Date).isRequired,
     primaryImage: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     subtitle: PropTypes.string.isRequired,
-  })
-}
+  }).isRequired,
+};
