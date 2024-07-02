@@ -9,14 +9,16 @@ import { db } from "./config";
 import yaml from "js-yaml";
 import { formatField } from "../utils/formatString";
 
+// Parsear el campo para obtener el item y la oferta
 const parseField = (key) => {
-    const match = key.match(/item(\d+)_bid(\d+)/);
-    return {
-      item: Number(match[1]),
-      bid: Number(match[2]),
-    };
+  const match = key.match(/item(\d+)_bid(\d+)/);
+  return {
+    item: Number(match[1]),
+    bid: Number(match[2]),
   };
-  
+};
+
+// Desanidar los items del documento
 export const unflattenItems = (doc, demo) => {
   let items = {};
   for (const [key, value] of Object.entries(doc.data())) {
@@ -26,7 +28,6 @@ export const unflattenItems = (doc, demo) => {
 
     if (bid === 0) {
       const { amount, endTime, ...itemData } = value;
-      // Spread operator on `items[item]` in case bid 0 wasn't the first to be read
       items[item] = { ...items[item], ...itemData, startingPrice: amount, endTime: endTime.toDate() };
       if (demo) {
         const now = new Date();
@@ -45,20 +46,21 @@ export const unflattenItems = (doc, demo) => {
   }
   return Object.values(items);
 };
-  
+
+// Editar items en la base de datos
 export const editItems = (id = undefined, updateItems = false, deleteBids = false) => {
   fetch(import.meta.env.BASE_URL + "items.yml")
     .then((response) => response.text())
     .then((text) => yaml.load(text))
     .then((items) => {
-      // If ID was provided, place that item in an array by itself
+      // Si se proporciona un ID, coloca ese item en un array por sí mismo
       if (id !== undefined) items = [items.find((item) => item.id === id)];
 
-      // Make the user confirm they want to edit items
-      let action = updateItems? 'update item data' : (deleteBids ? 'delete all bids' : '');
+      // Hacer que el usuario confirme si quiere editar items
+      let action = updateItems ? 'update item data' : (deleteBids ? 'delete all bids' : '');
       let item = id === undefined ? 'all items' : `item ${id}`;
       if (confirm(`You are about to ${action} for ${item}, are you sure?`) == false) {
-        return
+        return;
       }
 
       const docRef = doc(db, "auction", "items");
@@ -70,9 +72,9 @@ export const editItems = (id = undefined, updateItems = false, deleteBids = fals
             fields = items.map((item) => formatField(item.id, 0));
           const updates = {};
           items.forEach((newItem) => {
-            // Convert ISO date into Firestore Timestamp
+            // Convertir fecha ISO en Firestore Timestamp
             newItem.endTime = Timestamp.fromDate(new Date(newItem.endTime));
-            // Filter fields to the ones for the current newItem
+            // Filtrar campos para los que corresponden al nuevo item
             fields
               .filter((field) => parseField(field).item === newItem.id)
               .forEach((field) => {
@@ -90,4 +92,3 @@ export const editItems = (id = undefined, updateItems = false, deleteBids = fals
         });
     });
 };
-  
