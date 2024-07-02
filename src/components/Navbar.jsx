@@ -61,6 +61,9 @@ const Navbar = ({ admin }) => {
               height="24"
               className="d-inline-block align-text-top"
             />
+            <span style={{ fontFamily: "'Old English Text MT', serif", fontSize: "1.5em", marginLeft: "10px" }}>
+              𝓙𝓸𝓴𝓮𝓻𝓗𝓪𝓽𝓼
+            </span>
           </Link>
         </div>
         <div className="row row-cols-auto">
@@ -75,12 +78,12 @@ const Navbar = ({ admin }) => {
               </Link>
             </>
           )}
-<button onClick={handleAuth} className="btn btn-dark me-2" style={{ transition: 'background-color 0.3s ease' }} onMouseOver={(e) => e.target.style.backgroundColor = '#5a5a5a'} onMouseOut={(e) => e.target.style.backgroundColor = ''}> 
-  {authButtonText}
-</button>
-<button onClick={handleLogin} className="btn btn-dark me-2" style={{ transition: 'background-color 0.3s ease' }} onMouseOver={(e) => e.target.style.backgroundColor = '#5a5a5a'} onMouseOut={(e) => e.target.style.backgroundColor = ''}>
-  Login
-</button>
+          <button onClick={handleAuth} className="btn btn-dark me-2" style={{ transition: 'background-color 0.3s ease' }} onMouseOver={(e) => e.target.style.backgroundColor = '#5a5a5a'} onMouseOut={(e) => e.target.style.backgroundColor = ''}>
+            {authButtonText}
+          </button>
+          <button onClick={handleLogin} className="btn btn-dark me-2" style={{ transition: 'background-color 0.3s ease' }} onMouseOver={(e) => e.target.style.backgroundColor = '#5a5a5a'} onMouseOut={(e) => e.target.style.backgroundColor = ''}>
+            Login
+          </button>
         </div>
       </div>
       <LoginModal />
@@ -88,9 +91,8 @@ const Navbar = ({ admin }) => {
   );
 };
 
-
 Navbar.propTypes = {
-  admin: PropTypes.bool
+  admin: PropTypes.bool,
 };
 
 export default Navbar;
