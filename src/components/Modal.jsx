@@ -139,7 +139,7 @@ const ItemModal = () => {
     <Modal type={ModalTypes.ITEM} title={activeItem.title}>
       <div className="modal-body">
         <p>{activeItem.detail}</p>
-        <img src={secondaryImageSrc} className="img-fluid" alt={activeItem.title} />
+        <img src={activeItem.primaryImage} className="img-fluid" alt={activeItem.title} />
         <div className="top-bidders">
           <h6>Top 3 Bidders:</h6>
           <ul>
