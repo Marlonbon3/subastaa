@@ -59,10 +59,10 @@ const Navbar = ({ admin }) => {
         <div className="navbar-brand mb-0 h1 me-auto">
           <Link to={import.meta.env.BASE_URL} className="text-light">
             <img
-              src={import.meta.env.BASE_URL + "logorra2.png"}
+              src={import.meta.env.BASE_URL + "jokerh.png"}
               alt="Logo"
-              width="30"
-              height="24"
+              width=""
+              height="50"
               className="d-inline-block align-text-top"
             />
           </Link>
@@ -71,21 +71,29 @@ const Navbar = ({ admin }) => {
           <div className="navbar-brand text-light">{user}</div>
           {admin && (
             <>
-              <Link to={import.meta.env.BASE_URL + "admin"} className="btn btn-dark me-2">
+              <Link to={import.meta.env.BASE_URL + "admin"}
+                  className="btn btn-dark me-2" style={{ backgroundColor: "white", color: "red" }}>
                 {adminButtonText}
               </Link>
-              <Link to={import.meta.env.BASE_URL + "post"} className="btn btn-dark me-2">
-                Post Item
+              <Link
+                  to={import.meta.env.BASE_URL + "post"}
+                  className="btn btn-dark me-2" style={{ backgroundColor: "white", color: "red" }}>
+                  Post Item
               </Link>
             </>
           )}
-          <button onClick={handleAuth} className="btn btn-dark me-2" style={{ transition: 'background-color 0.3s ease' }} onMouseOver={(e) => e.target.style.backgroundColor = '#5a5a5a'} onMouseOut={(e) => e.target.style.backgroundColor = ''}>
-            {authButtonText}
+          <button
+              onClick={handleAuth}
+              className="btn me-2"
+              style={{ backgroundColor: "white", color: "red", transition: 'background-color 0.3s ease', border: '1px solid #ccc'}}
+              onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'} onMouseOut={(e) => e.target.style.backgroundColor = 'white'}>
+              {authButtonText}
           </button>
           {!user && (
-            <button onClick={handleLogin} className="btn btn-dark me-2" style={{ transition: 'background-color 0.3s ease' }} onMouseOver={(e) => e.target.style.backgroundColor = '#5a5a5a'} onMouseOut={(e) => e.target.style.backgroundColor = ''}>
-              Login
-            </button>
+            <button onClick={handleLogin} className="btn me-2" style={{ backgroundColor: "white", color: "red", transition: 'background-color 0.3s ease', border: '1px solid #ccc'}}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'} onMouseOut={(e) => e.target.style.backgroundColor = 'white'}>
+            Login
+          </button>
           )}
         </div>
       </div>
