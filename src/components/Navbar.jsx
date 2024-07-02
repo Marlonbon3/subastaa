@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import PropTypes from "prop-types";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { auth } from "../firebase/config";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { ModalsContext } from "../contexts/ModalsProvider";
 import { ModalTypes } from "../utils/modalTypes";
 import { LoginModal } from "../components/Modal";
@@ -20,6 +20,9 @@ const Navbar = ({ admin }) => {
       if (user && user.displayName != null) {
         setUser(`Hi ${user.displayName}`);
         setAuthButtonText("Sign out");
+      } else {
+        setUser("");
+        setAuthButtonText("Sign up");
       }
     });
 
@@ -36,8 +39,9 @@ const Navbar = ({ admin }) => {
     }
   };
 
-  const handleAuth = () => {
+  const handleAuth = async () => {
     if (user) {
+      await signOut(auth);
       setUser("");
       setAuthButtonText("Sign up");
     } else {
@@ -50,30 +54,39 @@ const Navbar = ({ admin }) => {
   };
 
   return (
-    <nav className="navbar navbar-dark bg-primary">
+    <nav className="navbar navbar-dark bg-danger">
       <div className="container-fluid">
         <div className="navbar-brand mb-0 h1 me-auto">
-          <Link to={import.meta.env.BASE_URL} className="text-decoration-none text-light">
+          <Link to={import.meta.env.BASE_URL} className="text-light">
             <img
-              src={import.meta.env.BASE_URL + "logo.png"}
+              src={import.meta.env.BASE_URL + "logorra2.png"}
               alt="Logo"
               width="30"
               height="24"
               className="d-inline-block align-text-top"
             />
-            The Marketplace
           </Link>
         </div>
         <div className="row row-cols-auto">
-          <div className="navbar-brand">{user}</div>
+          <div className="navbar-brand text-light">{user}</div>
           {admin && (
             <>
-              <Link to={import.meta.env.BASE_URL + "admin"} className="btn btn-secondary me-2">{adminButtonText}</Link>
-              <Link to={import.meta.env.BASE_URL + "post"} className="btn btn-secondary me-2">Post Item</Link>
+              <Link to={import.meta.env.BASE_URL + "admin"} className="btn btn-dark me-2">
+                {adminButtonText}
+              </Link>
+              <Link to={import.meta.env.BASE_URL + "post"} className="btn btn-dark me-2">
+                Post Item
+              </Link>
             </>
           )}
-          <button onClick={handleAuth} className="btn btn-secondary me-2">{authButtonText}</button>
-          <button onClick={handleLogin} className="btn btn-secondary me-2">Login</button>
+          <button onClick={handleAuth} className="btn btn-dark me-2" style={{ transition: 'background-color 0.3s ease' }} onMouseOver={(e) => e.target.style.backgroundColor = '#5a5a5a'} onMouseOut={(e) => e.target.style.backgroundColor = ''}>
+            {authButtonText}
+          </button>
+          {!user && (
+            <button onClick={handleLogin} className="btn btn-dark me-2" style={{ transition: 'background-color 0.3s ease' }} onMouseOver={(e) => e.target.style.backgroundColor = '#5a5a5a'} onMouseOut={(e) => e.target.style.backgroundColor = ''}>
+              Login
+            </button>
+          )}
         </div>
       </div>
       <LoginModal />
@@ -82,7 +95,7 @@ const Navbar = ({ admin }) => {
 };
 
 Navbar.propTypes = {
-  admin: PropTypes.bool
+  admin: PropTypes.bool,
 };
 
 export default Navbar;
