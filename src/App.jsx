@@ -17,7 +17,7 @@ import AdminPage from "./pages/Admin";
 import Post from "./pages/Post"; // Importa el componente Post
 import Footer from "./components/Footer"; // Importa el componente Footer
 function App() {
-  const demo = true;
+  const demo = false;
 
   const { admin } = AutoSignIn();
 
