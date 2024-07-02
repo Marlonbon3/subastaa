@@ -8,6 +8,7 @@ import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebase/config";
 import { ModalsContext } from "../contexts/ModalsProvider";
 import { ModalTypes } from "../utils/modalTypes";
+import PaypalButton from "./Paypalbutton";
 
 const Modal = ({ type, title, children }) => {
   const { closeModal, currentModal } = useContext(ModalsContext);
@@ -47,6 +48,8 @@ const ItemModal = () => {
   const [feedback, setFeedback] = useState("");
   const [minBid, setMinBid] = useState("-.--");
   const [topBidders, setTopBidders] = useState([]);
+  const [auctionEnded, setAuctionEnded] = useState(false);
+
 
   useEffect(() => {
     if (activeItem.secondaryImage === undefined) return;
@@ -63,6 +66,9 @@ const ItemModal = () => {
     setMinBid(formatMoney(activeItem.currency, status.amount + minIncrease));
     setTopBidders(status.topBidders);
   }, [activeItem]);
+
+
+  
 
   const delayedClose = () => {
     setTimeout(() => {
@@ -178,6 +184,8 @@ const ItemModal = () => {
               {bidderNames.map((name, index) => (
                 <li key={index}>{name}</li>
               ))}
+                    <PaypalButton totalValue={'0.01'} invoice={'Gorrita'}/>
+
             </ul>
           )}
         </div>
