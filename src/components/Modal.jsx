@@ -1,10 +1,9 @@
-import { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import PropTypes from "prop-types";
 import ReactDOM from "react-dom";
 import { itemStatus } from "../utils/itemStatus";
 import { formatField, formatMoney } from "../utils/formatString";
-import { updateProfile, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, updateDoc } from "firebase/firestore";
+import { updateDoc, doc } from "firebase/firestore";
 import { auth, db } from "../firebase/config";
 import { ModalsContext } from "../contexts/ModalsProvider";
 import { ModalTypes } from "../utils/modalTypes";
@@ -15,15 +14,8 @@ const Modal = ({ type, title, children }) => {
   if (type !== currentModal) return null;
 
   return ReactDOM.createPortal(
-    <div
-      className="modal fade show"
-      style={{ display: "block" }}
-      onClick={closeModal}
-    >
-      <div
-        className="modal-dialog modal-dialog-centered modal-dialog-scrollable"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="modal fade show" style={{ display: "block" }} onClick={closeModal}>
+      <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">{title}</h5>
@@ -40,7 +32,7 @@ const Modal = ({ type, title, children }) => {
 Modal.propTypes = {
   type: PropTypes.string,
   title: PropTypes.string,
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 const ItemModal = () => {
@@ -53,6 +45,7 @@ const ItemModal = () => {
   const [isSubmitting, setIsSubmitting] = useState("");
   const [feedback, setFeedback] = useState("");
   const [minBid, setMinBid] = useState("-.--");
+  const [topBidders, setTopBidders] = useState([]);
 
   useEffect(() => {
     if (activeItem.secondaryImage === undefined) return;
@@ -67,6 +60,7 @@ const ItemModal = () => {
   useEffect(() => {
     const status = itemStatus(activeItem);
     setMinBid(formatMoney(activeItem.currency, status.amount + minIncrease));
+    setTopBidders(status.topBidders);
   }, [activeItem]);
 
   const delayedClose = () => {
@@ -144,7 +138,17 @@ const ItemModal = () => {
     <Modal type={ModalTypes.ITEM} title={activeItem.title}>
       <div className="modal-body">
         <p>{activeItem.detail}</p>
-        <img src={secondaryImageSrc} className="img-fluid" alt={activeItem.title} />
+        <img src={activeItem.primaryImage} className="img-fluid" alt={activeItem.title} />
+        <div className="top-bidders">
+          <h6>Top 3 Bidders:</h6>
+          <ul>
+            {topBidders.map((bidder, index) => (
+              <li key={index}>
+                {bidder.uid} - {formatMoney(activeItem.currency, bidder.amount)}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
       <div className="modal-footer justify-content-start">
         <div className="input-group mb-2">
@@ -224,58 +228,52 @@ const SignUpModal = () => {
               autoFocus
               id="username-input"
               type="text"
-              className={`form-control ${valid}`}
+              className="form-control"
+              placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <label>Username</label>
+            <label htmlFor="username-input">Username</label>
           </div>
           <div className="form-floating mb-3">
             <input
-              id="email-input"
               type="email"
-              className={`form-control ${valid}`}
+              className="form-control"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <label>Email</label>
+            <label htmlFor="email-input">Email</label>
           </div>
           <div className="form-floating mb-3">
             <input
-              id="password-input"
               type="password"
-              className={`form-control ${valid}`}
+              className="form-control"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <label>Password</label>
+            <label htmlFor="password-input">Password</label>
           </div>
           <div className="form-floating mb-3">
             <input
-              id="confirm-password-input"
               type="password"
-              className={`form-control ${valid}`}
+              className="form-control"
+              placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <label>Confirm Password</label>
+            <label htmlFor="confirm-password-input">Confirm Password</label>
+            <div className="invalid-feedback">{error}</div>
           </div>
-          {error && <div className="alert alert-danger">{error}</div>}
         </form>
       </div>
-      <div className="modal-footer">
-        <button type="button" className="btn btn-secondary" onClick={closeModal}>
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="btn btn-primary"
-          onClick={handleSignUp}
-        >
+      <div className="modal-footer justify-content-start">
+        <button type="submit" className="btn btn-primary" onClick={handleSignUp}>
           Sign up
         </button>
       </div>
@@ -356,5 +354,4 @@ const LoginModal = () => {
     </Modal>
   );
 };
-
-export { ItemModal, SignUpModal, LoginModal };
+export { ItemModal, SignUpModal, LoginModal};
