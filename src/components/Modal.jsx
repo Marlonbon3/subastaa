@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import PropTypes from "prop-types";
 import ReactDOM from "react-dom";
 import { itemStatus } from "../utils/itemStatus";
@@ -15,15 +15,8 @@ const Modal = ({ type, title, children }) => {
   if (type !== currentModal) return null;
 
   return ReactDOM.createPortal(
-    <div
-      className="modal fade show"
-      style={{ display: "block" }}
-      onClick={closeModal}
-    >
-      <div
-        className="modal-dialog modal-dialog-centered modal-dialog-scrollable"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="modal fade show" style={{ display: "block" }} onClick={closeModal}>
+      <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title">{title}</h5>
@@ -40,7 +33,7 @@ const Modal = ({ type, title, children }) => {
 Modal.propTypes = {
   type: PropTypes.string,
   title: PropTypes.string,
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 const ItemModal = () => {
@@ -48,11 +41,12 @@ const ItemModal = () => {
   const [secondaryImageSrc, setSecondaryImageSrc] = useState("");
   const minIncrease = 1;
   const maxIncrease = 10;
-  const [bid, setBid] = useState();
+  const [bid, setBid] = useState("");
   const [valid, setValid] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [minBid, setMinBid] = useState("-.--");
+  const [topBidders, setTopBidders] = useState([]);
 
   useEffect(() => {
     if (activeItem.secondaryImage === undefined) return;
@@ -67,6 +61,7 @@ const ItemModal = () => {
   useEffect(() => {
     const status = itemStatus(activeItem);
     setMinBid(formatMoney(activeItem.currency, status.amount + minIncrease));
+    setTopBidders(status.topBidders);
   }, [activeItem]);
 
   const delayedClose = () => {
@@ -145,6 +140,16 @@ const ItemModal = () => {
       <div className="modal-body">
         <p>{activeItem.detail}</p>
         <img src={secondaryImageSrc} className="img-fluid" alt={activeItem.title} />
+        <div className="top-bidders">
+          <h6>Top 3 Bidders:</h6>
+          <ul>
+            {topBidders.map((bidder, index) => (
+              <li key={index}>
+                {bidder.uid} - {formatMoney(activeItem.currency, bidder.amount)}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
       <div className="modal-footer justify-content-start">
         <div className="input-group mb-2">
@@ -263,21 +268,12 @@ const SignUpModal = () => {
               onKeyDown={handleKeyDown}
             />
             <label>Confirm Password</label>
+            <div className="invalid-feedback">{error}</div>
           </div>
-          {error && <div className="alert alert-danger">{error}</div>}
+          <button type="submit" className="btn btn-primary" onClick={handleSignUp}>
+            Submit
+          </button>
         </form>
-      </div>
-      <div className="modal-footer">
-        <button type="button" className="btn btn-secondary" onClick={closeModal}>
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="btn btn-primary"
-          onClick={handleSignUp}
-        >
-          Sign up
-        </button>
       </div>
     </Modal>
   );
@@ -293,11 +289,11 @@ const LoginModal = () => {
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      console.debug(`login() user: ${auth.currentUser.uid}`);
       setValid("is-valid");
       setTimeout(() => {
         closeModal();
         setValid("");
-        window.location.reload(); // Aquí es donde se recarga la página
       }, 1000);
     } catch (error) {
       setError(error.message);
@@ -312,12 +308,8 @@ const LoginModal = () => {
   };
 
   return (
-    <Modal type={ModalTypes.LOGIN} title="Login to Markatplace Auction">
+    <Modal type={ModalTypes.LOGIN} title="Log in to Markatplace Auction">
       <div className="modal-body">
-        <p>
-          We use anonymous authentication provided by Google. Your account is
-          attached to your device signature.
-        </p>
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="form-floating mb-3">
             <input
@@ -341,17 +333,12 @@ const LoginModal = () => {
               onKeyDown={handleKeyDown}
             />
             <label>Password</label>
+            <div className="invalid-feedback">{error}</div>
           </div>
-          {error && <div className="alert alert-danger">{error}</div>}
+          <button type="submit" className="btn btn-primary" onClick={handleLogin}>
+            Submit
+          </button>
         </form>
-      </div>
-      <div className="modal-footer">
-        <button type="button" className="btn btn-secondary" onClick={closeModal}>
-          Cancel
-        </button>
-        <button type="submit" className="btn btn-primary" onClick={handleLogin}>
-          Login
-        </button>
       </div>
     </Modal>
   );
