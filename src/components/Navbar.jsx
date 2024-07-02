@@ -44,6 +44,7 @@ const Navbar = ({ admin }) => {
       await signOut(auth);
       setUser("");
       setAuthButtonText("Sign up");
+      window.location.reload();
     } else {
       openModal(ModalTypes.SIGN_UP);
     }
