@@ -49,7 +49,7 @@ export const Row = ({ item }) => {
       <td>{item.bids ? Object.keys(item.bids).length : 0}</td>
       <td>{winner}</td>
       <td>{timeLeft}</td>
-      <td>
+     {/*  <td>
         <button
           className="btn btn-warning me-3"
           onClick={() => editItems(item.id, true, false)}
@@ -62,7 +62,7 @@ export const Row = ({ item }) => {
         >
           Delete bids
         </button>
-      </td>
+      </td> */}
     </tr>
   );
 };
