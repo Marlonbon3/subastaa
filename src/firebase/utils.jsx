@@ -28,7 +28,9 @@ export const unflattenItems = (doc, demo) => {
 
     if (bid === 0) {
       const { amount, endTime, ...itemData } = value;
-      items[item] = { ...items[item], ...itemData, startingPrice: amount, endTime: endTime.toDate() };
+      const endTimeDate = new Date(endTime);
+      items[item] = { ...items[item], ...itemData, startingPrice: amount, endTime: endTimeDate }
+
       if (demo) {
         const now = new Date();
         items[item].endTime = new Date(
