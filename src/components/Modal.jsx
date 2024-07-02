@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import { itemStatus } from "../utils/itemStatus";
 import { formatField, formatMoney } from "../utils/formatString";
 import { updateProfile, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebase/config";
 import { ModalsContext } from "../contexts/ModalsProvider";
 import { ModalTypes } from "../utils/modalTypes";
@@ -135,6 +135,29 @@ const ItemModal = () => {
     }
   };
 
+
+  const [bidderNames, setBidderNames] = useState([]);
+
+  useEffect(() => {
+    const fetchUserNames = async () => {
+      const names = await Promise.all(
+        topBidders.map(async (bidder) => {
+          const userDoc = await getDoc(doc(db, 'users', bidder.uid));
+          if (userDoc.exists) {
+            return userDoc.data().name; // Asume que el nombre del usuario está almacenado en el campo 'name'
+          } else {
+            return bidder.uid; // Retorna el UID si no se encuentra el documento
+          }
+        })
+      );
+      setBidderNames(names);
+    };
+
+    fetchUserNames();
+  }, [topBidders]);
+
+  
+  
   return (
     <Modal type={ModalTypes.ITEM} title={activeItem.title}>
       <div className="modal-body">
@@ -145,8 +168,8 @@ const ItemModal = () => {
           <ul>
             {topBidders.map((bidder, index) => (
               <li key={index}>
-                {bidder.uid} - {formatMoney(activeItem.currency, bidder.amount)}
-              </li>
+                {bidderNames[index] || bidder.uid} - {formatMoney(activeItem.currency, bidder.amount)}
+                </li>
             ))}
           </ul>
         </div>
