@@ -6,11 +6,33 @@ import Chart from "./Chart";
 const Table = () => {
   const { items } = useContext(ItemsContext);
 
+  // Obtener los top 5 items por número de pujas
   const topItems = useMemo(() => {
     return items
       .filter(item => item.bids && Object.keys(item.bids).length > 0)  // Filtra items con más de 0 pujas
       .sort((a, b) => Object.keys(b.bids).length - Object.keys(a.bids).length)  // Ordena por número de pujas
       .slice(0, 5);  // Toma los primeros 5
+  }, [items]);
+
+  // Obtener los top 5 usuarios por número de pujas
+  const topUsers = useMemo(() => {
+    const userBids = {};
+
+    items.forEach(item => {
+      if (item.bids) {
+        Object.keys(item.bids).forEach(userId => {
+          if (!userBids[userId]) {
+            userBids[userId] = 0;
+          }
+          userBids[userId] += 1;
+        });
+      }
+    });
+
+    return Object.entries(userBids)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .map(([userId, bids]) => ({ userId, bids }));
   }, [items]);
 
   return (
@@ -35,7 +57,11 @@ const Table = () => {
       </table>
       <div className="mt-5">
         <h3>Top 5 Items by Bids</h3>
-        <Chart data={topItems} />
+        <Chart data={topItems} isUserChart={false} />
+      </div>
+      <div className="mt-5">
+        <h3>Top 5 Users by Bids</h3>
+        <Chart data={topUsers} isUserChart={true} />
       </div>
     </>
   );
