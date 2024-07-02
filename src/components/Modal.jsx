@@ -72,7 +72,7 @@ const ItemModal = () => {
     }, 1000);
   };
 
-  const handleSubmitBid = () => {
+  const handleSubmitBid = async () => {
     let nowTime = new Date().getTime();
     setIsSubmitting(true);
     if (activeItem.endTime - nowTime < 0) {
@@ -112,7 +112,7 @@ const ItemModal = () => {
       setIsSubmitting(false);
       return;
     }
-    updateDoc(doc(db, "auction", "items"), {
+    await updateDoc(doc(db, "auction", "items"), {
       [formatField(activeItem.id, status.bids + 1)]: {
         amount,
         uid: auth.currentUser.uid,
@@ -135,29 +135,35 @@ const ItemModal = () => {
     }
   };
 
-
   const [bidderNames, setBidderNames] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserNames = async () => {
-      const names = await Promise.all(
-        topBidders.map(async (bidder) => {
-          const userDoc = await getDoc(doc(db, 'users', bidder.uid));
-          if (userDoc.exists) {
-            return userDoc.data().name; // Asume que el nombre del usuario está almacenado en el campo 'name'
-          } else {
-            return bidder.uid; // Retorna el UID si no se encuentra el documento
-          }
-        })
-      );
-      setBidderNames(names);
+      try {
+        const names = await Promise.all(
+          topBidders.map(async (bidder) => {
+            const userDoc = await getDoc(doc(db, 'users', bidder.uid));
+            if (userDoc.exists) {
+              return userDoc.data().name; // Asume que el nombre del usuario está almacenado en el campo 'name'
+            } else {
+              return bidder.uid; // Retorna el UID si no se encuentra el documento
+            }
+          })
+        );
+
+        const uniqueNames = [...new Set(names)];
+        setBidderNames(uniqueNames);
+      } catch (error) {
+        console.error("Failed to fetch user names", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchUserNames();
   }, [topBidders]);
 
-  
-  
   return (
     <Modal type={ModalTypes.ITEM} title={activeItem.title}>
       <div className="modal-body">
@@ -165,13 +171,15 @@ const ItemModal = () => {
         <img src={activeItem.primaryImage} className="img-fluid" alt={activeItem.title} />
         <div className="top-bidders">
           <h6>Top 3 Bidders:</h6>
-          <ul>
-            {topBidders.map((bidder, index) => (
-              <li key={index}>
-                {bidderNames[index] || bidder.uid} - {formatMoney(activeItem.currency, bidder.amount)}
-                </li>
-            ))}
-          </ul>
+          {isLoading ? (
+            <p>Loading...</p>
+          ) : (
+            <ul>
+              {bidderNames.map((name, index) => (
+                <li key={index}>{name}</li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
       <div className="modal-footer justify-content-start">
@@ -242,59 +250,57 @@ const SignUpModal = () => {
     <Modal type={ModalTypes.SIGN_UP} title="Sign up for Markatplace Auction">
       <div className="modal-body">
         <p>
-          We use anonymous authentication provided by Google. Your account is
-          attached to your device signature.
+          We use anonymous authentication. Provide a unique username that we will display
+          alongside your bids. If you win an auction, we will use your email to contact you.
         </p>
-        <p>The username just lets us know who's bidding!</p>
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="form-floating mb-3">
             <input
-              autoFocus
-              id="username-input"
               type="text"
               className={`form-control ${valid}`}
-              value={username}
+              id="username"
+              placeholder="username"
               onChange={(e) => setUsername(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <label>Username</label>
+            <label htmlFor="username">Username</label>
           </div>
           <div className="form-floating mb-3">
             <input
-              id="email-input"
               type="email"
               className={`form-control ${valid}`}
-              value={email}
+              id="email"
+              placeholder="name@example.com"
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <label>Email</label>
+            <label htmlFor="email">Email address</label>
           </div>
           <div className="form-floating mb-3">
             <input
-              id="password-input"
               type="password"
               className={`form-control ${valid}`}
-              value={password}
+              id="password"
+              placeholder="Password"
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <label>Password</label>
+            <label htmlFor="password">Password</label>
           </div>
           <div className="form-floating mb-3">
             <input
-              id="confirm-password-input"
               type="password"
               className={`form-control ${valid}`}
-              value={confirmPassword}
+              id="confirmPassword"
+              placeholder="Confirm Password"
               onChange={(e) => setConfirmPassword(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <label>Confirm Password</label>
+            <label htmlFor="confirmPassword">Confirm Password</label>
             <div className="invalid-feedback">{error}</div>
           </div>
-          <button type="submit" className="btn btn-primary" onClick={handleSignUp}>
-            Submit
+          <button type="button" className="btn btn-primary" onClick={handleSignUp}>
+            Sign Up
           </button>
         </form>
       </div>
@@ -312,7 +318,7 @@ const LoginModal = () => {
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      console.debug(`login() user: ${auth.currentUser.uid}`);
+      console.debug(`signIn() user: ${auth.currentUser.displayName}`);
       setValid("is-valid");
       setTimeout(() => {
         closeModal();
@@ -331,35 +337,37 @@ const LoginModal = () => {
   };
 
   return (
-    <Modal type={ModalTypes.LOGIN} title="Log in to Markatplace Auction">
+    <Modal type={ModalTypes.LOG_IN} title="Log in to Markatplace Auction">
       <div className="modal-body">
+        <p>
+          If you have an account with us, log in using your email address and password.
+        </p>
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="form-floating mb-3">
             <input
-              autoFocus
-              id="email-input"
               type="email"
               className={`form-control ${valid}`}
-              value={email}
+              id="email"
+              placeholder="name@example.com"
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <label>Email</label>
+            <label htmlFor="email">Email address</label>
           </div>
           <div className="form-floating mb-3">
             <input
-              id="password-input"
               type="password"
               className={`form-control ${valid}`}
-              value={password}
+              id="password"
+              placeholder="Password"
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <label>Password</label>
+            <label htmlFor="password">Password</label>
             <div className="invalid-feedback">{error}</div>
           </div>
-          <button type="submit" className="btn btn-primary" onClick={handleLogin}>
-            Submit
+          <button type="button" className="btn btn-primary" onClick={handleLogin}>
+            Log In
           </button>
         </form>
       </div>
