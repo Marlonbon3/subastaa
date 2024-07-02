@@ -5,14 +5,15 @@ import { auth } from "../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 import { ModalsContext } from "../contexts/ModalsProvider";
 import { ModalTypes } from "../utils/modalTypes";
+import { LoginModal } from "../components/Modal";
 
 const Navbar = ({ admin }) => {
-  const openModal = useContext(ModalsContext).openModal;
+  const { openModal } = useContext(ModalsContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState("");
   const [authButtonText, setAuthButtonText] = useState("Sign up");
   const [adminButtonText, setAdminButtonText] = useState("Admin");
-  const location = useLocation();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -22,9 +23,8 @@ const Navbar = ({ admin }) => {
       }
     });
 
-    // Clean up the onAuthStateChanged listener when the component unmounts
     return () => unsubscribe();
-  }, [user.displayName]);
+  }, []);
 
   const handleAdmin = () => {
     if (location.pathname.includes("admin")) {
@@ -43,6 +43,10 @@ const Navbar = ({ admin }) => {
     } else {
       openModal(ModalTypes.SIGN_UP);
     }
+  };
+
+  const handleLogin = () => {
+    openModal(ModalTypes.LOGIN);
   };
 
   return (
@@ -69,14 +73,16 @@ const Navbar = ({ admin }) => {
             </>
           )}
           <button onClick={handleAuth} className="btn btn-secondary me-2">{authButtonText}</button>
+          <button onClick={handleLogin} className="btn btn-secondary me-2">Login</button>
         </div>
       </div>
+      <LoginModal />
     </nav>
   );
 };
 
 Navbar.propTypes = {
   admin: PropTypes.bool
-}
+};
 
 export default Navbar;

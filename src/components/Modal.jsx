@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import ReactDOM from "react-dom";
 import { itemStatus } from "../utils/itemStatus";
 import { formatField, formatMoney } from "../utils/formatString";
-import { updateProfile } from "firebase/auth";
+import { updateProfile, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebase/config";
 import { ModalsContext } from "../contexts/ModalsProvider";
@@ -40,8 +40,8 @@ const Modal = ({ type, title, children }) => {
 Modal.propTypes = {
   type: PropTypes.string,
   title: PropTypes.string,
-  children: PropTypes.arrayOf(PropTypes.element)
-}
+  children: PropTypes.node
+};
 
 const ItemModal = () => {
   const { activeItem, openModal, closeModal } = useContext(ModalsContext);
@@ -56,10 +56,13 @@ const ItemModal = () => {
 
   useEffect(() => {
     if (activeItem.secondaryImage === undefined) return;
-    import(`../assets/${activeItem.secondaryImage}.png`).then((src) => {
-      setSecondaryImageSrc(src.default)
-    })
-  }, [activeItem.secondaryImage])
+    try {
+      const src = require(`../assets/${activeItem.secondaryImage}.png`);
+      setSecondaryImageSrc(src.default);
+    } catch (error) {
+      console.error("Failed to load image", error);
+    }
+  }, [activeItem.secondaryImage]);
 
   useEffect(() => {
     const status = itemStatus(activeItem);
@@ -75,11 +78,8 @@ const ItemModal = () => {
   };
 
   const handleSubmitBid = () => {
-    // Get bid submission time as early as possible
     let nowTime = new Date().getTime();
-    // Disable bid submission while we submit the current request
     setIsSubmitting(true);
-    // Ensure item has not already ended
     if (activeItem.endTime - nowTime < 0) {
       setFeedback("Sorry, this item has ended!");
       setValid("is-invalid");
@@ -87,7 +87,6 @@ const ItemModal = () => {
       setIsSubmitting(false);
       return;
     }
-    // Ensure user has provided a username
     if (auth.currentUser.displayName == null) {
       setFeedback("You must provide a username before bidding!");
       setValid("is-invalid");
@@ -95,41 +94,36 @@ const ItemModal = () => {
         openModal(ModalTypes.SIGN_UP);
         setIsSubmitting(false);
         setValid("");
-      }, 1000)
+      }, 1000);
       return;
     }
-    // Ensure input is a monetary value
     if (!/^\d+(\.\d{1,2})?$/.test(bid)) {
       setFeedback("Please enter a valid monetary amount!");
       setValid("is-invalid");
       setIsSubmitting(false);
       return;
     }
-    // Get values needed to place bid
     const amount = parseFloat(bid);
     const status = itemStatus(activeItem);
-    // Ensure input is large enough
     if (amount < status.amount + minIncrease) {
       setFeedback("You did not bid enough!");
       setValid("is-invalid");
       setIsSubmitting(false);
       return;
     }
-    // Ensure input is small enough
     if (amount > status.amount + maxIncrease) {
       setFeedback(`For the demo you can only increase the price up to ${activeItem.currency}${maxIncrease} per bid.`);
       setValid("is-invalid");
       setIsSubmitting(false);
       return;
     }
-    // Finally, place bid
     updateDoc(doc(db, "auction", "items"), {
       [formatField(activeItem.id, status.bids + 1)]: {
         amount,
         uid: auth.currentUser.uid,
       },
     });
-    console.debug("handleSubmidBid() write to auction/items");
+    console.debug("handleSubmitBid() write to auction/items");
     setValid("is-valid");
     delayedClose();
   };
@@ -150,7 +144,7 @@ const ItemModal = () => {
     <Modal type={ModalTypes.ITEM} title={activeItem.title}>
       <div className="modal-body">
         <p>{activeItem.detail}</p>
-        <img src={activeItem.primaryImage} className="img-fluid" alt={activeItem.title} />
+        <img src={secondaryImageSrc} className="img-fluid" alt={activeItem.title} />
       </div>
       <div className="modal-footer justify-content-start">
         <div className="input-group mb-2">
@@ -159,19 +153,19 @@ const ItemModal = () => {
             className={`form-control ${valid}`}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            />
+          />
           <button
             type="submit"
             className="btn btn-primary"
             onClick={handleSubmitBid}
             disabled={isSubmitting}
-            >
+          >
             Submit bid
           </button>
           <div className="invalid-feedback">{feedback}</div>
         </div>
         <label className="form-label">Enter {minBid} or more</label>
-        <p className="text-muted">(This is just a demo, you&apos;re not bidding real money)</p>
+        <p className="text-muted">(This is just a demo, you're not bidding real money)</p>
       </div>
     </Modal>
   );
@@ -180,18 +174,34 @@ const ItemModal = () => {
 const SignUpModal = () => {
   const { closeModal } = useContext(ModalsContext);
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [valid, setValid] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSignUp = () => {
-    const user = auth.currentUser;
-    updateProfile(user, { displayName: username });
-    setDoc(doc(db, "users", user.uid), { name: username, admin: "" });
-    console.debug(`signUp() write to users/${user.uid}`);
-    setValid("is-valid");
-    setTimeout(() => {
-      closeModal();
-      setValid("");
-    }, 1000);
+  const handleSignUp = async () => {
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      setValid("is-invalid");
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      await updateProfile(user, { displayName: username });
+      await setDoc(doc(db, "users", user.uid), { name: username, email, admin: "" });
+      console.debug(`signUp() write to users/${user.uid}`);
+      setValid("is-valid");
+      setTimeout(() => {
+        closeModal();
+        setValid("");
+      }, 1000);
+    } catch (error) {
+      setError(error.message);
+      setValid("is-invalid");
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -207,13 +217,13 @@ const SignUpModal = () => {
           We use anonymous authentication provided by Google. Your account is
           attached to your device signature.
         </p>
-        <p>The username just lets us know who&apos;s bidding!</p>
+        <p>The username just lets us know who's bidding!</p>
         <form onSubmit={(e) => e.preventDefault()}>
           <div className="form-floating mb-3">
             <input
               autoFocus
               id="username-input"
-              type="username"
+              type="text"
               className={`form-control ${valid}`}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -221,6 +231,40 @@ const SignUpModal = () => {
             />
             <label>Username</label>
           </div>
+          <div className="form-floating mb-3">
+            <input
+              id="email-input"
+              type="email"
+              className={`form-control ${valid}`}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <label>Email</label>
+          </div>
+          <div className="form-floating mb-3">
+            <input
+              id="password-input"
+              type="password"
+              className={`form-control ${valid}`}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <label>Password</label>
+          </div>
+          <div className="form-floating mb-3">
+            <input
+              id="confirm-password-input"
+              type="password"
+              className={`form-control ${valid}`}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <label>Confirm Password</label>
+          </div>
+          {error && <div className="alert alert-danger">{error}</div>}
         </form>
       </div>
       <div className="modal-footer">
@@ -239,4 +283,78 @@ const SignUpModal = () => {
   );
 };
 
-export { ItemModal, SignUpModal };
+const LoginModal = () => {
+  const { closeModal } = useContext(ModalsContext);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [valid, setValid] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      setValid("is-valid");
+      setTimeout(() => {
+        closeModal();
+        setValid("");
+        window.location.reload(); // Aquí es donde se recarga la página
+      }, 1000);
+    } catch (error) {
+      setError(error.message);
+      setValid("is-invalid");
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleLogin();
+    }
+  };
+
+  return (
+    <Modal type={ModalTypes.LOGIN} title="Login to Markatplace Auction">
+      <div className="modal-body">
+        <p>
+          We use anonymous authentication provided by Google. Your account is
+          attached to your device signature.
+        </p>
+        <form onSubmit={(e) => e.preventDefault()}>
+          <div className="form-floating mb-3">
+            <input
+              autoFocus
+              id="email-input"
+              type="email"
+              className={`form-control ${valid}`}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <label>Email</label>
+          </div>
+          <div className="form-floating mb-3">
+            <input
+              id="password-input"
+              type="password"
+              className={`form-control ${valid}`}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <label>Password</label>
+          </div>
+          {error && <div className="alert alert-danger">{error}</div>}
+        </form>
+      </div>
+      <div className="modal-footer">
+        <button type="button" className="btn btn-secondary" onClick={closeModal}>
+          Cancel
+        </button>
+        <button type="submit" className="btn btn-primary" onClick={handleLogin}>
+          Login
+        </button>
+      </div>
+    </Modal>
+  );
+};
+
+export { ItemModal, SignUpModal, LoginModal };
