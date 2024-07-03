@@ -21,7 +21,6 @@ const Table = () => {
             <th>Bids</th>
             <th>Winning</th>
             <th>Time Left</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>

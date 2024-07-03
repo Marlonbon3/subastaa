@@ -43,20 +43,7 @@ export const Row = ({ item }) => {
       <td>{item.bids ? Object.keys(item.bids).length : 0}</td>
       <td>{winner}</td>
       <td>{timeLeft}</td>
-      <td>
-        <button
-          className="btn btn-warning me-3"
-          onClick={() => editItems(item.id, true, false)}
-        >
-          Update item
-        </button>
-        <button
-          className="btn btn-danger me-3"
-          onClick={() => editItems(item.id, false, true)}
-        >
-          Delete bids
-        </button>
-      </td>
+      
     </tr>
   );
 };
