@@ -5,13 +5,11 @@ import { itemStatus } from "../utils/itemStatus";
 import { getDoc, doc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { editItems } from "../firebase/utils";
-
 export const Row = ({ item }) => {
   const [amount, setAmount] = useState(item.startingPrice);
   const [bids, setBids] = useState(0);
   const [winner, setWinner] = useState("");
   const [timeLeft, setTimeLeft] = useState("");
-
   useEffect(() => {
     const status = itemStatus(item);
     setAmount(formatMoney(item.currency, status.amount));
@@ -24,12 +22,10 @@ export const Row = ({ item }) => {
       setWinner("");
     }
   }, [item]);
-
   useEffect(() => {
     const updateTimer = () => {
       const now = Date.now();
       const remaining = item.endTime - now;
-
       if (remaining > 0) {
         setTimeLeft(formatTime(remaining));
         requestAnimationFrame(updateTimer);
@@ -37,10 +33,8 @@ export const Row = ({ item }) => {
         setTimeLeft("Item Ended");
       }
     };
-
     requestAnimationFrame(updateTimer);
   }, [item.endTime]);
-
   return (
     <tr>
       <td>{item.id}</td>
@@ -50,7 +44,7 @@ export const Row = ({ item }) => {
       <td>{winner}</td>
       <td>{timeLeft}</td>
       <td>
-      {/*   <button
+        <button
           className="btn btn-warning me-3"
           onClick={() => editItems(item.id, true, false)}
         >
@@ -61,12 +55,11 @@ export const Row = ({ item }) => {
           onClick={() => editItems(item.id, false, true)}
         >
           Delete bids
-        </button> */}
+        </button>
       </td>
     </tr>
   );
 };
-
 Row.propTypes = {
   item: PropTypes.shape({
     startingPrice: PropTypes.number.isRequired,

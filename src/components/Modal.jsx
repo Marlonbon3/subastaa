@@ -9,12 +9,9 @@ import { auth, db } from "../firebase/config";
 import { ModalsContext } from "../contexts/ModalsProvider";
 import { ModalTypes } from "../utils/modalTypes";
 import PaypalButton from "./Paypalbutton";
-
 const Modal = ({ type, title, children }) => {
   const { closeModal, currentModal } = useContext(ModalsContext);
-
   if (type !== currentModal) return null;
-
   return ReactDOM.createPortal(
     <div className="modal fade show" style={{ display: "block" }} onClick={closeModal}>
       <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
@@ -30,13 +27,11 @@ const Modal = ({ type, title, children }) => {
     document.body
   );
 };
-
 Modal.propTypes = {
   type: PropTypes.string,
   title: PropTypes.string,
   children: PropTypes.node,
 };
-
 const ItemModal = () => {
   const { activeItem, openModal, closeModal } = useContext(ModalsContext);
   const [secondaryImageSrc, setSecondaryImageSrc] = useState("");
@@ -49,8 +44,6 @@ const ItemModal = () => {
   const [minBid, setMinBid] = useState("-.--");
   const [topBidders, setTopBidders] = useState([]);
   const [auctionEnded, setAuctionEnded] = useState(false);
-
-
   useEffect(() => {
     if (activeItem.secondaryImage === undefined) return;
     try {
@@ -60,16 +53,12 @@ const ItemModal = () => {
       console.error("Failed to load image", error);
     }
   }, [activeItem.secondaryImage]);
-
   useEffect(() => {
     const status = itemStatus(activeItem);
     setMinBid(formatMoney(activeItem.currency, status.amount + minIncrease));
     setTopBidders(status.topBidders);
   }, [activeItem]);
-
-
   
-
   const delayedClose = () => {
     setTimeout(() => {
       closeModal();
@@ -77,7 +66,6 @@ const ItemModal = () => {
       setValid("");
     }, 1000);
   };
-
   const handleSubmitBid = async () => {
     let nowTime = new Date().getTime();
     setIsSubmitting(true);
@@ -128,22 +116,18 @@ const ItemModal = () => {
     setValid("is-valid");
     delayedClose();
   };
-
   const handleChange = (e) => {
     setBid(e.target.value);
     setIsSubmitting(false);
     setValid("");
   };
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !isSubmitting) {
       handleSubmitBid();
     }
   };
-
   const [bidderNames, setBidderNames] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     const fetchUserNames = async () => {
       try {
@@ -157,7 +141,6 @@ const ItemModal = () => {
             }
           })
         );
-
         const uniqueNames = [...new Set(names)];
         setBidderNames(uniqueNames);
       } catch (error) {
@@ -169,10 +152,7 @@ const ItemModal = () => {
 
     fetchUserNames();
   }, [topBidders]);
-  let nowTime = new Date().getTime();
-console.log(topBidders[0]?.amount);
-let preciofinal = topBidders[0]?.amount;
-console.log("Marlon",topBidders)
+
   return (
     <Modal type={ModalTypes.ITEM} title={activeItem.title}>
       <div className="modal-body">
@@ -187,10 +167,9 @@ console.log("Marlon",topBidders)
               {bidderNames.map((name, index) => (
                 <li key={index}>{name}</li>
               ))}
+                    <PaypalButton totalValue={'0.01'} invoice={'Gorrita'}/>
+
             </ul>
-          )}
-          {activeItem.endTime - nowTime < 0 && (
-            <PaypalButton totalValue={preciofinal} invoice={activeItem.title}/>
           )}
         </div>
       </div>
@@ -218,7 +197,6 @@ console.log("Marlon",topBidders)
     </Modal>
   );
 };
-
 const SignUpModal = () => {
   const { closeModal } = useContext(ModalsContext);
   const [username, setUsername] = useState("");
@@ -227,14 +205,12 @@ const SignUpModal = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [valid, setValid] = useState("");
   const [error, setError] = useState("");
-
   const handleSignUp = async () => {
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       setValid("is-invalid");
       return;
     }
-
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -251,13 +227,11 @@ const SignUpModal = () => {
       setValid("is-invalid");
     }
   };
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       handleSignUp();
     }
   };
-
   return (
     <Modal type={ModalTypes.SIGN_UP} title="Sign up for Markatplace Auction">
       <div className="modal-body">
@@ -315,18 +289,33 @@ const SignUpModal = () => {
             Sign Up
           </button>
         </form>
+
+    
+          
+            
+    
+
+          
+          Expand Down
+          
+            
+    
+
+          
+          Expand Up
+    
+    @@ -363,24 +365,24 @@
+  
       </div>
     </Modal>
   );
 };
-
 const LoginModal = () => {
   const { closeModal } = useContext(ModalsContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [valid, setValid] = useState("");
   const [error, setError] = useState("");
-
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
@@ -341,13 +330,11 @@ const LoginModal = () => {
       setValid("is-invalid");
     }
   };
-
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       handleLogin();
     }
   };
-
   return (
     <Modal type={ModalTypes.LOG_IN} title="Log in to Markatplace Auction">
       <div className="modal-body">
