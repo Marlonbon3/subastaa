@@ -155,6 +155,15 @@ const ItemModal = () => {
     fetchUserNames();
   }, [topBidders]);
 
+  const [preciofinal, setPreciofinal] = useState()
+useEffect(() => {
+  if (topBidders[0]?.amount) {
+    setPreciofinal(topBidders[0].amount);
+  }
+}, [topBidders]);
+let nowTime = new Date().getTime();
+
+
   return (
     <Modal type={ModalTypes.ITEM} title={activeItem.title}>
       <div className="modal-body">
@@ -169,8 +178,12 @@ const ItemModal = () => {
               {bidderNames.map((name, index) => (
                 <li key={index}>{name}</li>
               ))}
-                    <PaypalButton totalValue={'0.01'} invoice={'Gorrita'}/>
-
+              {activeItem.endTime - nowTime < 0 && (
+            <div>
+              <p>FELICIDADES ERES EL GANADOR DE ESTA SUBASTA, REALIZA EL PAGO CON EL VENDEDOR</p>
+            <PaypalButton totalValue={preciofinal} invoice={activeItem.title}/>
+            </div>
+          )}
             </ul>
           )}
         </div>
