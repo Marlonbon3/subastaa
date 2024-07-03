@@ -1,3 +1,5 @@
+// formatString.js
+
 const formatNumberWithCommas = (x) => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
@@ -29,9 +31,12 @@ const formatTime = (time) => {
 };
 
 const formatField = (item, bid) => {
-  const item_padded = item.toString().padStart(5, "0");
+  if (!item || !item.id) {
+    throw new Error('Item ID is not defined.');
+  }
+  const itemId = item.id.toString().padStart(5, "0");
   const bid_padded = bid.toString().padStart(5, "0");
-  return `item${item_padded}_bid${bid_padded}`;
+  return `item${itemId}_bid${bid_padded}`;
 };
 
 export { formatNumberWithCommas, formatMoney, formatTime, formatField };
