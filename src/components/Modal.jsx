@@ -163,6 +163,8 @@ useEffect(() => {
 }, [topBidders]);
 let nowTime = new Date().getTime();
 
+
+
   return (
     <Modal type={ModalTypes.ITEM} title={activeItem.title}>
       <div className="modal-body">
