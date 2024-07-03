@@ -23,6 +23,8 @@ const Post = () => {
     endTime: '',
   });
 
+  const [lastItemId, setLastItemId] = useState(null); // Inicializa el último ID en 13
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -30,29 +32,28 @@ const Post = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const newItem = {
-      primaryImage: formData.primaryImage,
-      title: formData.title,
-      subtitle: formData.subtitle,
-      detail: formData.detail,
-      secondaryImage: formData.secondaryImage,
-      currency: "$", // Siempre será $
-      amount: parseFloat(formData.amount),
-      endTime: formData.endTime,
-    };
-
     const docRef = doc(db, "auction", "items");
 
     getDoc(docRef)
       .then((doc) => {
         const fields = Object.keys(doc.data());
+        const lastId = Math.max(...fields.map(field => parseField(field).item));
+        setLastItemId(lastId);
+
+        const newItem = {
+          id: lastId + 1,
+          primaryImage: formData.primaryImage,
+          title: formData.title,
+          subtitle: formData.subtitle,
+          detail: formData.detail,
+          secondaryImage: formData.secondaryImage,
+          currency: "$", // Siempre será $
+          amount: parseFloat(formData.amount),
+          endTime: formData.endTime,
+        };
+
         const updates = {};
-
-        // Encontrar el ID disponible más alto y sumarle 1
-        const nextId = Math.max(...fields.map(field => parseField(field).item)) + 1;
-
-        // Añadir el nuevo artículo al documento
-        updates[`item${nextId}_bid0`] = newItem;
+        updates[`item${newItem.id}_bid0`] = newItem;
 
         return updates;
       })
@@ -76,6 +77,7 @@ const Post = () => {
         alert("Hubo un error al añadir el artículo. Por favor, intenta nuevamente.");
       });
   };
+
 
   return (
     <div className="container">

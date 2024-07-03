@@ -8,6 +8,7 @@ import {
 import { db } from "./config";
 import yaml from "js-yaml";
 import { formatField } from "../utils/formatString";
+
 // Parsear el campo para obtener el item y la oferta
 const parseField = (key) => {
   const match = key.match(/item(\d+)_bid(\d+)/);
@@ -16,17 +17,20 @@ const parseField = (key) => {
     bid: Number(match[2]),
   };
 };
+
 // Desanidar los items del documento
 export const unflattenItems = (doc, demo) => {
   let items = {};
   for (const [key, value] of Object.entries(doc.data())) {
     const { item, bid } = parseField(key);
+
     if (!(item in items)) items[item] = { bids: {} };
 
     if (bid === 0) {
       const { amount, endTime, ...itemData } = value;
-      items[item] = { ...items[item], ...itemData, startingPrice: amount, endTime: endTime.toDate() };
-
+      // Asegurarse de que endTime se convierte correctamente a una fecha
+      items[item] = { ...items[item], ...itemData, startingPrice: amount, endTime: endTime instanceof Timestamp ? endTime.toDate() : new Date(endTime) };
+      
       if (demo) {
         const now = new Date();
         items[item].endTime = new Date(
@@ -44,6 +48,7 @@ export const unflattenItems = (doc, demo) => {
   }
   return Object.values(items);
 };
+
 // Editar items en la base de datos
 export const editItems = (id = undefined, updateItems = false, deleteBids = false) => {
   fetch(import.meta.env.BASE_URL + "items.yml")
@@ -52,12 +57,14 @@ export const editItems = (id = undefined, updateItems = false, deleteBids = fals
     .then((items) => {
       // Si se proporciona un ID, coloca ese item en un array por sí mismo
       if (id !== undefined) items = [items.find((item) => item.id === id)];
+
       // Hacer que el usuario confirme si quiere editar items
       let action = updateItems ? 'update item data' : (deleteBids ? 'delete all bids' : '');
       let item = id === undefined ? 'all items' : `item ${id}`;
       if (confirm(`You are about to ${action} for ${item}, are you sure?`) == false) {
         return;
       }
+
       const docRef = doc(db, "auction", "items");
       getDoc(docRef)
         .then((doc) => {

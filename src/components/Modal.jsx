@@ -44,7 +44,8 @@ const ItemModal = () => {
   const [minBid, setMinBid] = useState("-.--");
   const [topBidders, setTopBidders] = useState([]);
   const [auctionEnded, setAuctionEnded] = useState(false);
-  useEffect(() => {
+
+ /*  useEffect(() => {
     if (activeItem.secondaryImage === undefined) return;
     try {
       const src = require(`../assets/${activeItem.secondaryImage}.png`);
@@ -52,7 +53,8 @@ const ItemModal = () => {
     } catch (error) {
       console.error("Failed to load image", error);
     }
-  }, [activeItem.secondaryImage]);
+  }, [activeItem.secondaryImage]); */
+
   useEffect(() => {
     const status = itemStatus(activeItem);
     setMinBid(formatMoney(activeItem.currency, status.amount + minIncrease));
