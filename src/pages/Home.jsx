@@ -1,6 +1,7 @@
 import Grid from "../components/Grid";
 import { ItemModal } from "../components/Modal";
 
+
 function HomePage() {
   return (
     <div className="container mt-3">

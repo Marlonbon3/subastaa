@@ -13,6 +13,7 @@ import { ModalsProvider } from "./contexts/ModalsProvider";
 import Navbar from "./components/Navbar";
 import { SignUpModal } from "./components/Modal";
 import HomePage from "./pages/Home";
+import MyAuctionsPage from "./pages/MyAuctionsPage";
 import AdminPage from "./pages/Admin";
 import Post from "./pages/Post"; // Importa el componente Post
 import Footer from "./components/Footer"; // Importa el componente Footer
@@ -39,26 +40,35 @@ function App() {
         <Navbar admin={admin} />
         <SignUpModal />
         <Routes>
-          <Route path={import.meta.env.BASE_URL} element={<HomePage />} />
-          <Route
-            exact
-            path={import.meta.env.BASE_URL + "admin"}
-            element={
-              <ProtectedRoute condition={admin}>
-                <AdminPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            exact
-            path={import.meta.env.BASE_URL + "post"} // Ruta para Post.jsx
-            element={
-              <ProtectedRoute condition={admin}>
-                <Post />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+  <Route path={import.meta.env.BASE_URL} element={<HomePage />} />
+  <Route
+    exact
+    path={import.meta.env.BASE_URL + "admin"}
+    element={
+      <ProtectedRoute condition={admin}>
+        <AdminPage />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    exact
+    path={import.meta.env.BASE_URL + "post"}
+    element={
+      <ProtectedRoute condition={admin}>
+        <Post />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    exact
+    path={import.meta.env.BASE_URL + "my-auctions"}
+    element={
+      <ProtectedRoute condition={admin}>
+        <MyAuctionsPage />
+      </ProtectedRoute>
+    }
+  />
+</Routes>
       </Router>
       <Footer />
     </Providers>

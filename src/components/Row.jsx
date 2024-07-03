@@ -50,7 +50,7 @@ export const Row = ({ item }) => {
       <td>{winner}</td>
       <td>{timeLeft}</td>
       <td>
-        <button
+      {/*   <button
           className="btn btn-warning me-3"
           onClick={() => editItems(item.id, true, false)}
         >
@@ -61,7 +61,7 @@ export const Row = ({ item }) => {
           onClick={() => editItems(item.id, false, true)}
         >
           Delete bids
-        </button>
+        </button> */}
       </td>
     </tr>
   );
