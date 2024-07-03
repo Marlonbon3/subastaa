@@ -169,6 +169,7 @@ const ItemModal = () => {
 
     fetchUserNames();
   }, [topBidders]);
+  let nowTime = new Date().getTime();
 
   return (
     <Modal type={ModalTypes.ITEM} title={activeItem.title}>
@@ -184,9 +185,10 @@ const ItemModal = () => {
               {bidderNames.map((name, index) => (
                 <li key={index}>{name}</li>
               ))}
-                    <PaypalButton totalValue={'0.01'} invoice={'Gorrita'}/>
-
             </ul>
+          )}
+          {activeItem.endTime - nowTime < 0 && (
+            <PaypalButton totalValue={'0.01'} invoice={'Gorrita'}/>
           )}
         </div>
       </div>

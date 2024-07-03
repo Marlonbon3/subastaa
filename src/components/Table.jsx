@@ -24,8 +24,8 @@ const Table = () => {
             <th>Bids</th>
             <th>Winning</th>
             <th>Time Left</th>
-            <th>Actions</th>
-          </tr>
+{/*             <th>Actions</th>
+ */}          </tr>
         </thead>
         <tbody>
           {items.map((item) => (
