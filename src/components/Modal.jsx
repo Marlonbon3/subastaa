@@ -163,9 +163,6 @@ useEffect(() => {
 }, [topBidders]);
 let nowTime = new Date().getTime();
 
-console.log("usuario de ahorita",auth.currentUser.uid)
-console.log("el top bidder number 1", topBidders[0]?.uid)
-
   return (
     <Modal type={ModalTypes.ITEM} title={activeItem.title}>
       <div className="modal-body">
