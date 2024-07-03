@@ -163,6 +163,8 @@ useEffect(() => {
 }, [topBidders]);
 let nowTime = new Date().getTime();
 
+console.log("usuario de ahorita",auth.currentUser.uid)
+console.log("el top bidder number 1", topBidders[0]?.uid)
 
   return (
     <Modal type={ModalTypes.ITEM} title={activeItem.title}>
@@ -178,7 +180,8 @@ let nowTime = new Date().getTime();
               {bidderNames.map((name, index) => (
                 <li key={index}>{name}</li>
               ))}
-              {activeItem.endTime - nowTime < 0 && (
+              {activeItem.endTime - nowTime < 0 && 
+              topBidders[0]?.uid === auth.currentUser.uid &&(
             <div>
               <p>FELICIDADES ERES EL GANADOR DE ESTA SUBASTA, REALIZA EL PAGO CON EL VENDEDOR</p>
             <PaypalButton totalValue={preciofinal} invoice={activeItem.title}/>
