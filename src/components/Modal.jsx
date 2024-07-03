@@ -292,22 +292,6 @@ const SignUpModal = () => {
           </button>
         </form>
 
-    
-          
-            
-    
-
-          
-          Expand Down
-          
-            
-    
-
-          
-          Expand Up
-    
-    @@ -363,24 +365,24 @@
-  
       </div>
     </Modal>
   );
