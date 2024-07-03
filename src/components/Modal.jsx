@@ -170,7 +170,9 @@ const ItemModal = () => {
     fetchUserNames();
   }, [topBidders]);
   let nowTime = new Date().getTime();
-
+console.log(topBidders[0]?.amount);
+let preciofinal = topBidders[0]?.amount;
+console.log("Marlon",topBidders)
   return (
     <Modal type={ModalTypes.ITEM} title={activeItem.title}>
       <div className="modal-body">
@@ -188,7 +190,7 @@ const ItemModal = () => {
             </ul>
           )}
           {activeItem.endTime - nowTime < 0 && (
-            <PaypalButton totalValue={'0.01'} invoice={'Gorrita'}/>
+            <PaypalButton totalValue={preciofinal} invoice={activeItem.title}/>
           )}
         </div>
       </div>
