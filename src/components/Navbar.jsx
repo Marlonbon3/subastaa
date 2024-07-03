@@ -6,6 +6,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { ModalsContext } from "../contexts/ModalsProvider";
 import { ModalTypes } from "../utils/modalTypes";
 import { LoginModal } from "../components/Modal";
+
 const Navbar = ({ admin }) => {
   const { openModal } = useContext(ModalsContext);
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const Navbar = ({ admin }) => {
   const [user, setUser] = useState("");
   const [authButtonText, setAuthButtonText] = useState("Sign up");
   const [adminButtonText, setAdminButtonText] = useState("Admin");
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user && user.displayName != null) {
@@ -23,8 +25,10 @@ const Navbar = ({ admin }) => {
         setAuthButtonText("Sign up");
       }
     });
+
     return () => unsubscribe();
   }, []);
+
   const handleAdmin = () => {
     if (location.pathname.includes("admin")) {
       navigate(import.meta.env.BASE_URL);
@@ -34,6 +38,7 @@ const Navbar = ({ admin }) => {
       setAdminButtonText("Home");
     }
   };
+
   const handleAuth = async () => {
     if (user) {
       await signOut(auth);
@@ -44,9 +49,11 @@ const Navbar = ({ admin }) => {
       openModal(ModalTypes.SIGN_UP);
     }
   };
+
   const handleLogin = () => {
     openModal(ModalTypes.LOGIN);
   };
+
   return (
     <nav className="navbar navbar-dark bg-danger">
       <div className="container-fluid">
@@ -62,32 +69,43 @@ const Navbar = ({ admin }) => {
           </Link>
         </div>
         <div className="row row-cols-auto">
-          <div className="navbar-brand text-light">{user}</div>
-          {admin && (
-            <>
-              <Link to={import.meta.env.BASE_URL + "admin"}
-                  className="btn btn-dark me-2" style={{ backgroundColor: "white", color: "red" }}>
-                {adminButtonText}
-              </Link>
-              <Link
-                  to={import.meta.env.BASE_URL + "post"}
-                  className="btn btn-dark me-2" style={{ backgroundColor: "white", color: "red" }}>
-                  Post Item
-              </Link>
-            </>
-          )}
-          <button
-              onClick={handleAuth}
-              className="btn me-2"
-              style={{ backgroundColor: "white", color: "red", transition: 'background-color 0.3s ease', border: '1px solid #ccc'}}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'} onMouseOut={(e) => e.target.style.backgroundColor = 'white'}>
-              {authButtonText}
-          </button>
-          {!user && (
-            <button onClick={handleLogin} className="btn me-2" style={{ backgroundColor: "white", color: "red", transition: 'background-color 0.3s ease', border: '1px solid #ccc'}}
-            onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'} onMouseOut={(e) => e.target.style.backgroundColor = 'white'}>
-            Login
-          </button>
+    <div className="navbar-brand text-light">{user}</div>
+    {admin && (
+      <>
+        <Link to={import.meta.env.BASE_URL + "admin"}
+          className="btn btn-dark me-2" style={{ backgroundColor: "white", color: "red" }}>
+          {adminButtonText}
+        </Link>
+        <Link
+          to={import.meta.env.BASE_URL + "post"}
+          className="btn btn-dark me-2" style={{ backgroundColor: "white", color: "red" }}>
+          Post Item
+        </Link>
+      </>
+    )}
+    {user && (
+      <Link 
+        to={import.meta.env.BASE_URL + "my-auctions"} 
+        className="btn me-2"
+        style={{ backgroundColor: "white", color: "red", transition: 'background-color 0.3s ease', border: '1px solid #ccc'}}
+        onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'} 
+        onMouseOut={(e) => e.target.style.backgroundColor = 'white'}
+      >
+        My Auctions
+      </Link>
+    )}
+    <button
+      onClick={handleAuth}
+      className="btn me-2"
+      style={{ backgroundColor: "white", color: "red", transition: 'background-color 0.3s ease', border: '1px solid #ccc'}}
+      onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'} onMouseOut={(e) => e.target.style.backgroundColor = 'white'}>
+      {authButtonText}
+    </button>
+    {!user && (
+      <button onClick={handleLogin} className="btn me-2" style={{ backgroundColor: "white", color: "red", transition: 'background-color 0.3s ease', border: '1px solid #ccc'}}
+      onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'} onMouseOut={(e) => e.target.style.backgroundColor = 'white'}>
+      Login
+      </button>
           )}
         </div>
       </div>
@@ -95,7 +113,9 @@ const Navbar = ({ admin }) => {
     </nav>
   );
 };
+
 Navbar.propTypes = {
   admin: PropTypes.bool,
 };
+
 export default Navbar;
