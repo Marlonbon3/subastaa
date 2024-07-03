@@ -13,7 +13,7 @@ import { ModalsProvider } from "./contexts/ModalsProvider";
 import Navbar from "./components/Navbar";
 import { SignUpModal } from "./components/Modal";
 import HomePage from "./pages/Home";
-import MyAuctionsPage from "./pages/MyAuctionsPage";
+import MyAuctionsPage from "./components/Chart2";
 import AdminPage from "./pages/Admin";
 import Post from "./pages/Post"; // Importa el componente Post
 import Footer from "./components/Footer"; // Importa el componente Footer

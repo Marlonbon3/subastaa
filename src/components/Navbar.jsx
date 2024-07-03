@@ -84,7 +84,8 @@ const Navbar = ({ admin }) => {
       </>
     )}
     {user && (
-      <Link 
+      <></>
+     /*  <Link 
         to={import.meta.env.BASE_URL + "my-auctions"} 
         className="btn me-2"
         style={{ backgroundColor: "white", color: "red", transition: 'background-color 0.3s ease', border: '1px solid #ccc'}}
@@ -92,7 +93,7 @@ const Navbar = ({ admin }) => {
         onMouseOut={(e) => e.target.style.backgroundColor = 'white'}
       >
         My Auctions
-      </Link>
+      </Link> */
     )}
     <button
       onClick={handleAuth}
